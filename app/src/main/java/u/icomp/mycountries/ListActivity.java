@@ -1,14 +1,18 @@
 package u.icomp.mycountries;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -16,7 +20,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,6 +63,23 @@ public class ListActivity extends AppCompatActivity implements SwipeRefreshLayou
                 Toast.makeText(getApplication(), countriesList.get(position).toString(), Toast.LENGTH_LONG).show();
             }
         });
+
+
+       /*
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                hasPermission();
+
+                Intent intent = new Intent(ListActivity.this, MapsActivity.class);
+                intent.putExtra("c",countriesList.get(i));
+                startActivity(intent);
+            }
+        });
+        */
+
+
+
     }
 
 
@@ -68,28 +89,6 @@ public class ListActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     }
 
-  /*  private void getDataRetro(){
-        HttpRetrofit.getCountryClient().getCountry().enqueue(new Callback<List<Country>>() {
-            public void onResponse(Call<List<Country>> call, Response<List<Country>> response) {
-                if (response.isSuccessful()) {
-                    List<Country> countryBody = response.body();
-                    countriesList.clear();
-                    for (Country c : countryBody) {
-                        countriesList.add(c);
-                    }
-                    adapter.notifyDataSetChanged();
-                } else {
-                    System.out.println(response.errorBody());
-                }
-                swiperefresh.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(Call<List<Country>> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
-    } */
     class CountryTask extends AsyncTask<Void, Void, List<Country>> {
         @Override
         protected void onPreExecute() {
@@ -132,7 +131,7 @@ public class ListActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         swiperefresh.setRefreshing(true);
 
-        // se tiver conexao faz get, senao pega do sqlite
+        // if connection exists get data via GET
         if (isConnected()) {
             HttpRetrofit.getCountryClient().getCountry().enqueue(new Callback<List<Country>>() {
                 public void onResponse(Call<List<Country>> call, Response<List<Country>> response) {
@@ -140,11 +139,11 @@ public class ListActivity extends AppCompatActivity implements SwipeRefreshLayou
                         List<Country> countryBody = response.body();
                         countriesList.clear();
 
-                        db.excluirAll();
+                        db.deleteAll();
 
                         for (Country c : countryBody) {
                             countriesList.add(c);
-                            db.inserir(c);
+                            db.insertAll(c);
                         }
                         adapter.notifyDataSetChanged();
                     } else {
@@ -171,4 +170,25 @@ public class ListActivity extends AppCompatActivity implements SwipeRefreshLayou
         countriesList.addAll(db.listCountries());
         adapter.notifyDataSetChanged();
     }
+
+    void hasPermission(){
+        //pede permissao de localizacao
+        if (ContextCompat.checkSelfPermission(ListActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // ja pediu permissao?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ListActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            } else {
+
+                // solicita permissao de localizacao
+                ActivityCompat.requestPermissions(ListActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            }
+        }
+    }
+
+
 }

@@ -19,24 +19,21 @@ public class Operations {
         helper = new SQLHelper(ctx);
     }
 
-    public void inserir(Country c){
+    public void insertAll(Country c){
         db = helper.getReadableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(SQLHelper.COL_NAME, c.name);
         cv.put(SQLHelper.COL_CAPITAL, c.capital);
         cv.put(SQLHelper.COL_REGION, c.region);
         cv.put(SQLHelper.COL_SUB_REGION, c.subregion);
-
-
         long id = db.insert(SQLHelper.COUNTRIES_TABLE, null, cv);
+        if(id != -1){
 
-      /*  if(id != -1){
-            c.id = id;
-        } */
+        }
         db.close();
     }
 
-    public void excluirAll(){
+    public void deleteAll(){
         db = helper.getWritableDatabase();
         db.delete(SQLHelper.COUNTRIES_TABLE, null, null);
         db.close();
@@ -67,6 +64,7 @@ public class Operations {
             Country c = new Country(name, capital, region, subregion);
             list.add(c);
         }
+
         cursor.close();
         return list;
     }
