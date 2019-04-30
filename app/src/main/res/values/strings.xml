@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyCountries</string>
+    <string name="listofcountries">List of countries</string>
+    <string name="map">See maps</string>
+    <string name="names">Countries </string>
+    <string name="sub">Subregion </string>
+    <string name="title_activity_maps">Map</string>
+</resources>
